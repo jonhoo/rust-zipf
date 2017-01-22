@@ -1,3 +1,10 @@
+# rust-zipf
+
+[![crates.io page](https://img.shields.io/crates/v/zipf.svg)](https://crates.io/crates/zipf)
+[![Downloads](https://img.shields.io/crates/d/zipf.png)](https://crates.io/crates/zipf)
+[![Documentation](https://docs.rs/zipf/badge.svg)](https://docs.rs/zipf/)
+[![Build Status](https://travis-ci.org/jonhoo/rust-zipf.svg?branch=master)](https://travis-ci.org/jonhoo/rust-zipf)
+
 Rust implementation of a fast, discrete, bounded,
 [Zipf-distributed](https://en.wikipedia.org/wiki/Zipf's_law) random
 number generator
