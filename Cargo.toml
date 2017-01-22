@@ -1,7 +1,16 @@
 [package]
 name = "zipf"
 version = "0.1.0"
+readme = "./README.md"
+description = "A fast generator of discrete, bounded Zipf-distributed random numbers"
 authors = ["Jon Gjengset <jon@thesquareplanet.com>"]
+
+license = "Apache-2.0"
+keywords = ["random", "distribution", "zipf"]
+categories = ["algorithms"]
+
+repository = "https://github.com/jonhoo/zipf"
+documentation = "https://docs.rs/zipf"
 
 [dependencies]
 rand = "0.3"
