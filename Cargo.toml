@@ -12,5 +12,8 @@ categories = ["algorithms"]
 repository = "https://github.com/jonhoo/rust-zipf"
 documentation = "https://docs.rs/zipf"
 
+[badges]
+travis-ci = { repository = "jonhoo/rust-zipf" }
+
 [dependencies]
 rand = "0.3"
