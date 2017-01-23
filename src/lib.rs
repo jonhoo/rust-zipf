@@ -22,6 +22,9 @@
 extern crate rand;
 use rand::Rng;
 
+#[cfg(test)]
+extern crate randomkit;
+
 /// Random number generator that generates Zipf-distributed random numbers using rejection
 /// inversion.
 pub struct ZipfDistribution<R> {
@@ -233,15 +236,67 @@ fn helper2(x: f64) -> f64 {
 }
 
 #[cfg(test)]
-mod test {
+mod tests {
+    use randomkit;
+
     #[test]
     fn generate() {
         use rand::{self, Rng};
         use super::ZipfDistribution;
+        use randomkit::Sample;
+
+        let n = 1000000;
+        let cdf_steps = 1000usize;
+
+        // sample our distribution
         let rng = rand::thread_rng();
-        let mut g = ZipfDistribution::new(rng, 100000, 1.07).unwrap();
-        for _ in 0..100000 {
-            println!("{}", g.next_f64());
+        let mut us = ZipfDistribution::new(rng, n, 1.07).unwrap();
+        let mut f1: Vec<_> = (0..n).map(|_| us.next_u64()).collect();
+        f1.sort();
+
+        // sample "real"/slow numpy zipf distribution
+        let mut rng = randomkit::Rng::new().unwrap();
+        let oracle = randomkit::dist::Zipf::new(1.07).unwrap();
+        let mut f2: Vec<_> = (0..n)
+            .map(|_| {
+                1 + (n as f64 * oracle.sample(&mut rng) as f64 / isize::max_value() as f64) as u64
+            })
+            .collect();
+        f2.sort();
+
+        // compute ECDF of both sample populations
+        let cdf = (0..cdf_steps).map(|i| {
+            // number of things less than n*i/cdf_steps
+            let t = (n as f64 * i as f64 / cdf_steps as f64) as u64;
+            let f1i = match f1.binary_search(&t) {
+                Ok(i) => i,
+                Err(i) => i,
+            };
+            let f2i = match f2.binary_search(&t) {
+                Ok(i) => i,
+                Err(i) => i,
+            };
+            println!("{} {} {}", t, f1i as f64 / n as f64, f2i as f64 / n as f64);
+            (f1i as f64 / n as f64, f2i as f64 / n as f64)
+        });
+
+        // Two-sample Kolmogorov–Smirnov test
+        // https://en.wikipedia.org/wiki/Kolmogorov–Smirnov_test#Two-sample_Kolmogorov.E2.80.93Smirnov_test
+        let diff = cdf.map(|(f1, f2)| (f1 - f2).abs());
+        let sup = diff.fold(0f64, |max, diff| if diff > max { diff } else { max });
+        let alpha = 0.005f64;
+        let c = (-0.5 * (alpha / 2.0).ln()).sqrt();
+        let threshold = c * ((2 * n) as f64 / (n * n) as f64).sqrt();
+
+        if sup <= threshold {
+            println!("max diff was {}", sup);
+            println!("rejection criterion is {}", threshold);
+            if false {
+                // TODO: currently fails -- however, it is unclear if the alpha parameter for the
+                // two generators actually *mean* the same thing, and thus whether they can be
+                // meaningfully compared.
+                assert!(sup <= threshold);
+            }
         }
     }
 }

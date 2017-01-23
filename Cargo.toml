@@ -17,3 +17,6 @@ travis-ci = { repository = "jonhoo/rust-zipf" }
 
 [dependencies]
 rand = "0.3"
+
+[dev-dependencies]
+randomkit = "0.1"
