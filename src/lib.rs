@@ -73,8 +73,8 @@ impl<R: Rng> ZipfDistribution<R> {
     }
 }
 
-impl<R: Rng> Rng for ZipfDistribution<R> {
-    fn next_u32(&mut self) -> u32 {
+impl<R: Rng> ZipfDistribution<R> {
+    fn next(&mut self) -> isize {
         // The paper describes an algorithm for exponents larger than 1 (Algorithm ZRI).
         //
         // The original method uses
@@ -160,9 +160,18 @@ impl<R: Rng> Rng for ZipfDistribution<R> {
                 // In both cases the probabilities are proportional to the probability mass function
                 // of the Zipf distribution.
 
-                return k as u32;
+                return k;
             }
         }
+    }
+}
+
+impl<R: Rng> Rng for ZipfDistribution<R> {
+    fn next_u32(&mut self) -> u32 {
+        self.next() as u32
+    }
+    fn next_u64(&mut self) -> u64 {
+        self.next() as u64
     }
 }
 
