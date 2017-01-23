@@ -7,18 +7,19 @@
 
 Rust implementation of a fast, discrete, bounded,
 [Zipf-distributed](https://en.wikipedia.org/wiki/Zipf's_law) random
-number generator
+number generator. Compared to the implementation provided by
+[`randomkit`](https://github.com/stygstra/rust-randomkit) (which binds
+to NumPy's fork of RandomKit), this crate is approximately twice as
+fast:
 
-For a random variable `X` whose values are distributed according to this distribution, the
-probability mass function is given by
-
-```ignore
-P(X = k) = H(N,s) * 1 / k^s for k = 1,2,...,N
+```console
+$ cargo bench
+test tests::bench_randomkit ... bench:         340 ns/iter (+/- 17)
+test tests::bench_us        ... bench:         134 ns/iter (+/- 4)
 ```
 
-`H(N,s)` is the normalizing constant which corresponds to the generalized harmonic number
-of order `N` of `s`.
-
+It is also both driven by, and provides, a [Rust random number
+generator](https://doc.rust-lang.org/rand/rand/trait.Rng.html).
 
 This implementation is effectively a direct port of Apache Common's
 [RejectionInversionZipfSampler](https://github.com/apache/commons-rng/blob/6a1b0c16090912e8fc5de2c1fb5bd8490ac14699/commons-rng-sampling/src/main/java/org/apache/commons/rng/sampling/distribution/RejectionInversionZipfSampler.java),

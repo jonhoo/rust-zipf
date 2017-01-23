@@ -19,6 +19,10 @@
 //! distributions*](https://dl.acm.org/citation.cfm?id=235029) from *ACM Transactions on Modeling
 //! and Computer Simulation (TOMACS) 6.3 (1996)*.
 
+//XXX: uncomment and run nightly to benchmark
+//#![feature(test)]
+//extern crate test;
+
 extern crate rand;
 use rand::Rng;
 
@@ -299,4 +303,24 @@ mod tests {
             }
         }
     }
+
+    //XXX: uncomment and run nightly to benchmark
+    //use test::Bencher;
+    //
+    //#[bench]
+    //fn bench_us(b: &mut Bencher) {
+    //    use rand::{self, Rng};
+    //    use super::ZipfDistribution;
+    //    let rng = rand::thread_rng();
+    //    let mut us = ZipfDistribution::new(rng, 1000000, 1.07).unwrap();
+    //    b.iter(|| us.next_u64());
+    //}
+    //
+    //#[bench]
+    //fn bench_randomkit(b: &mut Bencher) {
+    //    use randomkit::Sample;
+    //    let mut rng = randomkit::Rng::new().unwrap();
+    //    let oracle = randomkit::dist::Zipf::new(1.07).unwrap();
+    //    b.iter(|| oracle.sample(&mut rng));
+    //}
 }
