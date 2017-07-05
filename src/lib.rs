@@ -11,13 +11,13 @@
 //! `H(N,s)` is the normalizing constant which corresponds to the generalized harmonic number
 //! of order `N` of `s`.
 //!
-//!
 //! This implementation is effectively a direct port of Apache Common's
-//! [RejectionInversionZipfSampler](https://github.com/apache/commons-rng/blob/6a1b0c16090912e8fc5de2c1fb5bd8490ac14699/commons-rng-sampling/src/main/java/org/apache/commons/rng/sampling/distribution/RejectionInversionZipfSampler.java),
-//! written in Java. It is based on the method described by Wolfgang Hörmann and Gerhard Derflinger
-//! in [*Rejection-inversion to generate variates from monotone discrete
-//! distributions*](https://dl.acm.org/citation.cfm?id=235029) from *ACM Transactions on Modeling
-//! and Computer Simulation (TOMACS) 6.3 (1996)*.
+//! [RejectionInversionZipfSampler][ref], written in Java. It is based on the method described by
+//! Wolfgang Hörmann and Gerhard Derflinger in [*Rejection-inversion to generate variates from
+//! monotone discrete distributions*](https://dl.acm.org/citation.cfm?id=235029) from *ACM
+//! Transactions on Modeling and Computer Simulation (TOMACS) 6.3 (1996)*.
+//!
+//! [ref]: https://github.com/apache/commons-rng/blob/6a1b0c16090912e8fc5de2c1fb5bd8490ac14699/commons-rng-sampling/src/main/java/org/apache/commons/rng/sampling/distribution/RejectionInversionZipfSampler.java
 
 //XXX: uncomment and run nightly to benchmark
 //#![feature(test)]
@@ -162,10 +162,11 @@ impl<R: Rng> ZipfDistribution<R> {
                 //   Hence, the right inequality determines the acceptance rate:
                 //   P(accepted | k = m) = h(m) / (hIntegrated(m+1/2) - hIntegrated(m-1/2))
                 //   The probability that m is returned is given by
-                //   P(k = m and accepted) = P(accepted | k = m) * P(k = m) = C * h(m) = C / m^exponent.
+                //   P(k = m and accepted) = P(accepted | k = m) * P(k = m)
+                //                         = C * h(m) = C / m^exponent.
                 //
-                // In both cases the probabilities are proportional to the probability mass function
-                // of the Zipf distribution.
+                // In both cases the probabilities are proportional to the probability mass
+                // function of the Zipf distribution.
 
                 return k;
             }
