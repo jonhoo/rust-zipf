@@ -1,6 +1,6 @@
 [package]
 name = "zipf"
-version = "0.2.0"
+version = "1.0.0"
 readme = "./README.md"
 description = "A fast generator of discrete, bounded Zipf-distributed random numbers"
 authors = ["Jon Gjengset <jon@thesquareplanet.com>"]
@@ -16,7 +16,7 @@ documentation = "https://docs.rs/zipf"
 travis-ci = { repository = "jonhoo/rust-zipf" }
 
 [dependencies]
-rand = "0.3"
+rand = "0.3.15"
 
 [dev-dependencies]
 randomkit = "0.1"
