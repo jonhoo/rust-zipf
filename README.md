@@ -13,9 +13,10 @@ to NumPy's fork of RandomKit), this crate is approximately twice as
 fast:
 
 ```console
-$ cargo bench
-test tests::bench_randomkit ... bench:         340 ns/iter (+/- 17)
-test tests::bench_us        ... bench:         134 ns/iter (+/- 4)
+$ cargo +nightly bench
+test tests::bench_randomkit ... bench:         344 ns/iter (+/- 15)
+test tests::bench_us        ... bench:          66 ns/iter (+/- 2)
+test tests::bench_threadrng ... bench:           9 ns/iter (+/- 0)
 ```
 
 It is also both driven by, and provides, a [Rust random number

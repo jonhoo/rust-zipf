@@ -19,9 +19,9 @@
 //!
 //! [ref]: https://github.com/apache/commons-rng/blob/6a1b0c16090912e8fc5de2c1fb5bd8490ac14699/commons-rng-sampling/src/main/java/org/apache/commons/rng/sampling/distribution/RejectionInversionZipfSampler.java
 
-//XXX: uncomment and run nightly to benchmark
-//#![feature(test)]
-//extern crate test;
+// XXX: uncomment and run nightly to benchmark
+// #![feature(test)]
+// extern crate test;
 
 extern crate rand;
 use rand::Rng;
@@ -130,7 +130,6 @@ impl<R: Rng> ZipfDistribution<R> {
 
             let k64 = k as f64;
             if k64 - x <= s || u >= self.h_integral(k64 + 0.5) - self.h(k64) {
-
                 // Case k = 1:
                 //
                 //   The right inequality is always true, because replacing k by 1 gives
@@ -305,23 +304,31 @@ mod tests {
         }
     }
 
-    //XXX: uncomment and run nightly to benchmark
-    //use test::Bencher;
-    //
-    //#[bench]
-    //fn bench_us(b: &mut Bencher) {
-    //    use rand::{self, Rng};
-    //    use super::ZipfDistribution;
-    //    let rng = rand::thread_rng();
-    //    let mut us = ZipfDistribution::new(rng, 1000000, 1.07).unwrap();
-    //    b.iter(|| us.next_u64());
-    //}
-    //
-    //#[bench]
-    //fn bench_randomkit(b: &mut Bencher) {
-    //    use randomkit::Sample;
-    //    let mut rng = randomkit::Rng::new().unwrap();
-    //    let oracle = randomkit::dist::Zipf::new(1.07).unwrap();
-    //    b.iter(|| oracle.sample(&mut rng));
-    //}
+    // XXX: uncomment and run nightly to benchmark
+    // use test::Bencher;
+
+    // #[bench]
+    // fn bench_us(b: &mut Bencher) {
+    //     use rand::{self, Rng};
+    //     use super::ZipfDistribution;
+    //     let rng = rand::thread_rng();
+    //     let mut us = ZipfDistribution::new(rng, 1000000, 1.07).unwrap();
+    //     b.iter(|| us.next_u64());
+    // }
+
+    // #[bench]
+    // fn bench_randomkit(b: &mut Bencher) {
+    //     use randomkit::Sample;
+    //     let mut rng = randomkit::Rng::new().unwrap();
+    //     let oracle = randomkit::dist::Zipf::new(1.07).unwrap();
+    //     b.iter(|| oracle.sample(&mut rng));
+    // }
+
+    // #[bench]
+    // fn bench_threadrng(b: &mut Bencher) {
+    //     use rand::{self, Rng};
+    //     use super::ZipfDistribution;
+    //     let mut rng = rand::thread_rng();
+    //     b.iter(|| rng.next_u64());
+    // }
 }
