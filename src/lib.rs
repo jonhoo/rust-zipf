@@ -31,7 +31,7 @@ extern crate randomkit;
 
 /// Random number generator that generates Zipf-distributed random numbers using rejection
 /// inversion.
-pub struct ZipfDistribution<R> {
+pub struct ZipfDistribution {
     /// Number of elements
     num_elements: isize,
     /// Exponent parameter of the distribution
@@ -42,16 +42,14 @@ pub struct ZipfDistribution<R> {
     h_integral_num_elements: Option<f64>,
     /// `2 - hIntegralInverse(hIntegral(2.5) - h(2)}`
     s: Option<f64>,
-    /// Feeding random number generator
-    sampler: R,
 }
 
-impl<R: Rng> ZipfDistribution<R> {
+impl ZipfDistribution {
     /// Creates a new [Zipf-distributed](https://en.wikipedia.org/wiki/Zipf's_law)
     /// random number generator.
     ///
     /// Note that both the number of elements and the exponent must be greater than 0.
-    pub fn new(sampler: R, num_elements: usize, exponent: f64) -> Result<Self, ()> {
+    pub fn new(num_elements: usize, exponent: f64) -> Result<Self, ()> {
         if num_elements == 0 {
             return Err(());
         }
@@ -65,7 +63,6 @@ impl<R: Rng> ZipfDistribution<R> {
             h_integral_x1: None,
             h_integral_num_elements: None,
             s: None,
-            sampler: sampler,
         };
 
         // populate cache
@@ -80,8 +77,8 @@ impl<R: Rng> ZipfDistribution<R> {
     }
 }
 
-impl<R: Rng> ZipfDistribution<R> {
-    fn next(&mut self) -> isize {
+impl ZipfDistribution {
+    fn next<R: Rng>(&mut self, rng: &mut R) -> isize {
         // The paper describes an algorithm for exponents larger than 1 (Algorithm ZRI).
         //
         // The original method uses
@@ -107,7 +104,7 @@ impl<R: Rng> ZipfDistribution<R> {
         let s = self.s.unwrap();
 
         loop {
-            let u: f64 = hnum + self.sampler.next_f64() * (h_x1 - hnum);
+            let u: f64 = hnum + rng.next_f64() * (h_x1 - hnum);
             // u is uniformly distributed in (h_integral_x1, h_integral_num_elements]
 
             let x: f64 = self.h_integral_inv(u);
@@ -173,23 +170,20 @@ impl<R: Rng> ZipfDistribution<R> {
     }
 }
 
-impl<R: Rng> Rng for ZipfDistribution<R> {
-    fn next_u32(&mut self) -> u32 {
-        self.next() as u32
-    }
-    fn next_u64(&mut self) -> u64 {
-        self.next() as u64
+impl rand::distributions::Sample<isize> for ZipfDistribution {
+    fn sample<R: Rng>(&mut self, rng: &mut R) -> isize {
+        self.next(rng)
     }
 }
 
 use std::fmt;
-impl<R: fmt::Debug> fmt::Debug for ZipfDistribution<R> {
+impl fmt::Debug for ZipfDistribution {
     fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
-        write!(f, "Rejection inversion Zipf deviate [{:?}]", self.sampler)
+        write!(f, "Rejection inversion Zipf deviate")
     }
 }
 
-impl<R: Rng> ZipfDistribution<R> {
+impl ZipfDistribution {
     /// Computes `H(x)`, defined as
     ///
     ///  - `(x^(1 - exponent) - 1) / (1 - exponent)`, if `exponent != 1`
@@ -245,17 +239,21 @@ mod tests {
 
     #[test]
     fn generate() {
-        use rand::{self, Rng};
+        use rand;
         use super::ZipfDistribution;
-        use randomkit::Sample;
 
         let n = 1000000;
         let cdf_steps = 1000usize;
 
         // sample our distribution
-        let rng = rand::thread_rng();
-        let mut us = ZipfDistribution::new(rng, n, 1.07).unwrap();
-        let mut f1: Vec<_> = (0..n).map(|_| us.next_u64()).collect();
+        let mut rng = rand::thread_rng();
+        let mut us = ZipfDistribution::new(n, 1.07).unwrap();
+        let mut f1: Vec<_> = (0..n)
+            .map(|_| {
+                use rand::distributions::Sample;
+                us.sample(&mut rng) as u64
+            })
+            .collect();
         f1.sort();
 
         // sample "real"/slow numpy zipf distribution
@@ -263,6 +261,7 @@ mod tests {
         let oracle = randomkit::dist::Zipf::new(1.07).unwrap();
         let mut f2: Vec<_> = (0..n)
             .map(|_| {
+                use randomkit::Sample;
                 1 + (n as f64 * oracle.sample(&mut rng) as f64 / isize::max_value() as f64) as u64
             })
             .collect();
@@ -304,31 +303,33 @@ mod tests {
         }
     }
 
+    /*
     // XXX: uncomment and run nightly to benchmark
-    // use test::Bencher;
+    use test::Bencher;
 
-    // #[bench]
-    // fn bench_us(b: &mut Bencher) {
-    //     use rand::{self, Rng};
-    //     use super::ZipfDistribution;
-    //     let rng = rand::thread_rng();
-    //     let mut us = ZipfDistribution::new(rng, 1000000, 1.07).unwrap();
-    //     b.iter(|| us.next_u64());
-    // }
+    #[bench]
+    fn bench_us(b: &mut Bencher) {
+        use rand;
+        use rand::distributions::Sample;
+        use super::ZipfDistribution;
+        let mut rng = rand::thread_rng();
+        let mut us = ZipfDistribution::new(1000000, 1.07).unwrap();
+        b.iter(|| us.sample(&mut rng));
+    }
 
-    // #[bench]
-    // fn bench_randomkit(b: &mut Bencher) {
-    //     use randomkit::Sample;
-    //     let mut rng = randomkit::Rng::new().unwrap();
-    //     let oracle = randomkit::dist::Zipf::new(1.07).unwrap();
-    //     b.iter(|| oracle.sample(&mut rng));
-    // }
+    #[bench]
+    fn bench_randomkit(b: &mut Bencher) {
+        use randomkit::Sample;
+        let mut rng = randomkit::Rng::new().unwrap();
+        let oracle = randomkit::dist::Zipf::new(1.07).unwrap();
+        b.iter(|| oracle.sample(&mut rng));
+    }
 
-    // #[bench]
-    // fn bench_threadrng(b: &mut Bencher) {
-    //     use rand::{self, Rng};
-    //     use super::ZipfDistribution;
-    //     let mut rng = rand::thread_rng();
-    //     b.iter(|| rng.next_u64());
-    // }
+    #[bench]
+    fn bench_threadrng(b: &mut Bencher) {
+        use rand::{self, Rng};
+        let mut rng = rand::thread_rng();
+        b.iter(|| rng.next_u64());
+    }
+    */
 }

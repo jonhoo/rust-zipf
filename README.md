@@ -14,9 +14,9 @@ fast:
 
 ```console
 $ cargo +nightly bench
-test tests::bench_randomkit ... bench:         344 ns/iter (+/- 15)
-test tests::bench_us        ... bench:          66 ns/iter (+/- 2)
-test tests::bench_threadrng ... bench:           9 ns/iter (+/- 0)
+test tests::bench_randomkit ... bench:         339 ns/iter (+/- 18)
+test tests::bench_us        ... bench:          68 ns/iter (+/- 1)
+test tests::bench_threadrng ... bench:          11 ns/iter (+/- 0)
 ```
 
 It is also both driven by, and provides, a [Rust random number
