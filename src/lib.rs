@@ -78,7 +78,7 @@ impl ZipfDistribution {
 }
 
 impl ZipfDistribution {
-    fn next<R: Rng>(&mut self, rng: &mut R) -> isize {
+    fn next<R: Rng>(&mut self, rng: &mut R) -> usize {
         // The paper describes an algorithm for exponents larger than 1 (Algorithm ZRI).
         //
         // The original method uses
@@ -104,19 +104,17 @@ impl ZipfDistribution {
         let s = self.s.unwrap();
 
         loop {
+            use std::cmp;
             let u: f64 = hnum + rng.next_f64() * (h_x1 - hnum);
             // u is uniformly distributed in (h_integral_x1, h_integral_num_elements]
 
             let x: f64 = self.h_integral_inv(u);
-            let mut k: isize = (x + 0.5) as isize;
 
             // Limit k to the range [1, num_elements] if it would be outside
             // due to numerical inaccuracies.
-            if k < 1 {
-                k = 1;
-            } else if k > self.num_elements {
-                k = self.num_elements;
-            }
+            let k64 = x.max(1.0).min(self.num_elements as f64);
+            // float -> integer rounds towards zero
+            let k = cmp::max(1, k64 as usize);
 
             // Here, the distribution of k is given by:
             //
@@ -124,8 +122,6 @@ impl ZipfDistribution {
             //   P(k = m) = C * (hIntegral(m + 1/2) - hIntegral(m - 1/2)) for m >= 2
             //
             // where C = 1 / (h_integral_num_elements - h_integral_x1)
-
-            let k64 = k as f64;
             if k64 - x <= s || u >= self.h_integral(k64 + 0.5) - self.h(k64) {
                 // Case k = 1:
                 //
@@ -170,8 +166,8 @@ impl ZipfDistribution {
     }
 }
 
-impl rand::distributions::Sample<isize> for ZipfDistribution {
-    fn sample<R: Rng>(&mut self, rng: &mut R) -> isize {
+impl rand::distributions::Sample<usize> for ZipfDistribution {
+    fn sample<R: Rng>(&mut self, rng: &mut R) -> usize {
         self.next(rng)
     }
 }
