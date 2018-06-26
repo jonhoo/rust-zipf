@@ -247,10 +247,10 @@ mod tests {
 
         // sample our distribution
         let mut rng = rand::thread_rng();
-        let mut us = ZipfDistribution::new(n, 1.07).unwrap();
+        let us = ZipfDistribution::new(n, 1.07).unwrap();
         let mut f1: Vec<_> = (0..n)
             .map(|_| {
-                use rand::distributions::Sample;
+                use rand::distributions::Distribution;
                 us.sample(&mut rng) as u64
             })
             .collect();
