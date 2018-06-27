@@ -93,14 +93,11 @@ impl ZipfDistribution {
         // be positive and numbers are taken from [0, i_max]. This explains why the implementation
         // looks slightly different.
 
-        // We know these were computed in new()
         let hnum = self.h_integral_num_elements;
-        let h_x1 = self.h_integral_x1;
-        let s = self.s;
 
         loop {
             use std::cmp;
-            let u: f64 = hnum + rng.gen::<f64>() * (h_x1 - hnum);
+            let u: f64 = hnum + rng.gen::<f64>() * (self.h_integral_x1 - hnum);
             // u is uniformly distributed in (h_integral_x1, h_integral_num_elements]
 
             let x: f64 = ZipfDistribution::h_integral_inv(u, self.exponent);
@@ -117,7 +114,7 @@ impl ZipfDistribution {
             //   P(k = m) = C * (hIntegral(m + 1/2) - hIntegral(m - 1/2)) for m >= 2
             //
             // where C = 1 / (h_integral_num_elements - h_integral_x1)
-            if k64 - x <= s || u >= ZipfDistribution::h_integral(k64 + 0.5, self.exponent) - ZipfDistribution::h(k64, self.exponent) {
+            if k64 - x <= self.s || u >= ZipfDistribution::h_integral(k64 + 0.5, self.exponent) - ZipfDistribution::h(k64, self.exponent) {
                 // Case k = 1:
                 //
                 //   The right inequality is always true, because replacing k by 1 gives
