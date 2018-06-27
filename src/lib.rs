@@ -167,6 +167,12 @@ impl rand::distributions::Sample<usize> for ZipfDistribution {
     }
 }
 
+impl rand::distributions::IndependentSample<usize> for ZipfDistribution {
+    fn ind_sample<R: Rng>(&self, rng: &mut R) -> usize {
+        self.next(rng)
+    }
+}
+
 impl rand::distributions::Distribution<usize> for ZipfDistribution {
     fn sample<R: Rng + ?Sized>(&self, rng: &mut R) -> usize {
         self.next(rng)
