@@ -57,16 +57,13 @@ impl ZipfDistribution {
             return Err(());
         }
 
-        let h_integral_x1 = ZipfDistribution::h_integral(1.5, exponent) - 1f64;
-        let h_integral_num_elements = ZipfDistribution::h_integral(num_elements as f64 + 0.5, exponent);
-        let s = 2f64 - ZipfDistribution::h_integral_inv(ZipfDistribution::h_integral(2.5, exponent) - ZipfDistribution::h(2f64, exponent), exponent);
-
         let z = ZipfDistribution {
             num_elements: num_elements as f64,
             exponent,
-            h_integral_x1,
-            h_integral_num_elements,
-            s,
+            h_integral_x1: ZipfDistribution::h_integral(1.5, exponent) - 1f64,
+            h_integral_num_elements: ZipfDistribution::h_integral(num_elements as f64 + 0.5, exponent),
+            s: 2f64 - ZipfDistribution::h_integral_inv(ZipfDistribution::h_integral(2.5, exponent)
+                                                           - ZipfDistribution::h(2f64, exponent), exponent),
         };
 
         // populate cache
