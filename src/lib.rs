@@ -61,9 +61,14 @@ impl ZipfDistribution {
             num_elements: num_elements as f64,
             exponent,
             h_integral_x1: ZipfDistribution::h_integral(1.5, exponent) - 1f64,
-            h_integral_num_elements: ZipfDistribution::h_integral(num_elements as f64 + 0.5, exponent),
-            s: 2f64 - ZipfDistribution::h_integral_inv(ZipfDistribution::h_integral(2.5, exponent)
-                                                           - ZipfDistribution::h(2f64, exponent), exponent),
+            h_integral_num_elements: ZipfDistribution::h_integral(
+                num_elements as f64 + 0.5,
+                exponent,
+            ),
+            s: 2f64 - ZipfDistribution::h_integral_inv(
+                ZipfDistribution::h_integral(2.5, exponent) - ZipfDistribution::h(2f64, exponent),
+                exponent,
+            ),
         };
 
         // populate cache
@@ -114,7 +119,10 @@ impl ZipfDistribution {
             //   P(k = m) = C * (hIntegral(m + 1/2) - hIntegral(m - 1/2)) for m >= 2
             //
             // where C = 1 / (h_integral_num_elements - h_integral_x1)
-            if k64 - x <= self.s || u >= ZipfDistribution::h_integral(k64 + 0.5, self.exponent) - ZipfDistribution::h(k64, self.exponent) {
+            if k64 - x <= self.s
+                || u >= ZipfDistribution::h_integral(k64 + 0.5, self.exponent)
+                    - ZipfDistribution::h(k64, self.exponent)
+            {
                 // Case k = 1:
                 //
                 //   The right inequality is always true, because replacing k by 1 gives
@@ -158,12 +166,14 @@ impl ZipfDistribution {
     }
 }
 
+#[allow(deprecated)]
 impl rand::distributions::Sample<usize> for ZipfDistribution {
     fn sample<R: Rng>(&mut self, rng: &mut R) -> usize {
         self.next(rng)
     }
 }
 
+#[allow(deprecated)]
 impl rand::distributions::IndependentSample<usize> for ZipfDistribution {
     fn ind_sample<R: Rng>(&self, rng: &mut R) -> usize {
         self.next(rng)
@@ -219,7 +229,7 @@ fn helper1(x: f64) -> f64 {
     if x.abs() > 1e-8 {
         x.ln_1p() / x
     } else {
-        1f64 - x * (0.5 - x * (0.33333333333333333 - 0.25 * x))
+        1f64 - x * (0.5 - x * (1.0 / 3.0 - 0.25 * x))
     }
 }
 
@@ -229,7 +239,7 @@ fn helper2(x: f64) -> f64 {
     if x.abs() > 1e-8 {
         x.exp_m1() / x
     } else {
-        1f64 + x * 0.5 * (1f64 + x * 0.33333333333333333 * (1f64 + 0.25 * x))
+        1f64 + x * 0.5 * (1f64 + x * 1.0 / 3.0 * (1f64 + 0.25 * x))
     }
 }
 
@@ -239,8 +249,8 @@ mod tests {
 
     #[test]
     fn generate() {
-        use rand;
         use super::ZipfDistribution;
+        use rand;
 
         let n = 1000000;
         let cdf_steps = 1000usize;
