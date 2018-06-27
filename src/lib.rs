@@ -33,15 +33,15 @@ extern crate randomkit;
 /// inversion.
 pub struct ZipfDistribution {
     /// Number of elements
-    num_elements: isize,
+    num_elements: f64,
     /// Exponent parameter of the distribution
     exponent: f64,
     /// `hIntegral(1.5) - 1}`
-    h_integral_x1: Option<f64>,
+    h_integral_x1: f64,
     /// `hIntegral(num_elements + 0.5)}`
-    h_integral_num_elements: Option<f64>,
+    h_integral_num_elements: f64,
     /// `2 - hIntegralInverse(hIntegral(2.5) - h(2)}`
-    s: Option<f64>,
+    s: f64,
 }
 
 impl ZipfDistribution {
@@ -57,28 +57,23 @@ impl ZipfDistribution {
             return Err(());
         }
 
-        let mut z = ZipfDistribution {
-            num_elements: num_elements as isize,
-            exponent: exponent,
-            h_integral_x1: None,
-            h_integral_num_elements: None,
-            s: None,
+        let z = ZipfDistribution {
+            num_elements: num_elements as f64,
+            exponent,
+            h_integral_x1: ZipfDistribution::h_integral(1.5, exponent) - 1f64,
+            h_integral_num_elements: ZipfDistribution::h_integral(num_elements as f64 + 0.5, exponent),
+            s: 2f64 - ZipfDistribution::h_integral_inv(ZipfDistribution::h_integral(2.5, exponent)
+                                                           - ZipfDistribution::h(2f64, exponent), exponent),
         };
 
         // populate cache
-        let h_integral_x1 = z.h_integral(1.5) - 1f64;
-        z.h_integral_x1 = Some(h_integral_x1);
-        let h_integral_num_elements = z.h_integral(num_elements as f64 + 0.5);
-        z.h_integral_num_elements = Some(h_integral_num_elements);
-        let s = 2f64 - z.h_integral_inv(z.h_integral(2.5) - z.h(2f64));
-        z.s = Some(s);
 
         Ok(z)
     }
 }
 
 impl ZipfDistribution {
-    fn next<R: Rng>(&mut self, rng: &mut R) -> usize {
+    fn next<R: Rng + ?Sized>(&self, rng: &mut R) -> usize {
         // The paper describes an algorithm for exponents larger than 1 (Algorithm ZRI).
         //
         // The original method uses
@@ -98,21 +93,18 @@ impl ZipfDistribution {
         // be positive and numbers are taken from [0, i_max]. This explains why the implementation
         // looks slightly different.
 
-        // We know these were computed in new()
-        let hnum = self.h_integral_num_elements.unwrap();
-        let h_x1 = self.h_integral_x1.unwrap();
-        let s = self.s.unwrap();
+        let hnum = self.h_integral_num_elements;
 
         loop {
             use std::cmp;
-            let u: f64 = hnum + rng.next_f64() * (h_x1 - hnum);
+            let u: f64 = hnum + rng.gen::<f64>() * (self.h_integral_x1 - hnum);
             // u is uniformly distributed in (h_integral_x1, h_integral_num_elements]
 
-            let x: f64 = self.h_integral_inv(u);
+            let x: f64 = ZipfDistribution::h_integral_inv(u, self.exponent);
 
             // Limit k to the range [1, num_elements] if it would be outside
             // due to numerical inaccuracies.
-            let k64 = x.max(1.0).min(self.num_elements as f64);
+            let k64 = x.max(1.0).min(self.num_elements);
             // float -> integer rounds towards zero
             let k = cmp::max(1, k64 as usize);
 
@@ -122,7 +114,7 @@ impl ZipfDistribution {
             //   P(k = m) = C * (hIntegral(m + 1/2) - hIntegral(m - 1/2)) for m >= 2
             //
             // where C = 1 / (h_integral_num_elements - h_integral_x1)
-            if k64 - x <= s || u >= self.h_integral(k64 + 0.5) - self.h(k64) {
+            if k64 - x <= self.s || u >= ZipfDistribution::h_integral(k64 + 0.5, self.exponent) - ZipfDistribution::h(k64, self.exponent) {
                 // Case k = 1:
                 //
                 //   The right inequality is always true, because replacing k by 1 gives
@@ -172,6 +164,18 @@ impl rand::distributions::Sample<usize> for ZipfDistribution {
     }
 }
 
+impl rand::distributions::IndependentSample<usize> for ZipfDistribution {
+    fn ind_sample<R: Rng>(&self, rng: &mut R) -> usize {
+        self.next(rng)
+    }
+}
+
+impl rand::distributions::Distribution<usize> for ZipfDistribution {
+    fn sample<R: Rng + ?Sized>(&self, rng: &mut R) -> usize {
+        self.next(rng)
+    }
+}
+
 use std::fmt;
 impl fmt::Debug for ZipfDistribution {
     fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
@@ -186,20 +190,20 @@ impl ZipfDistribution {
     ///  - `log(x)`, if `exponent == 1`
     ///
     /// `H(x)` is an integral function of `h(x)`, the derivative of `H(x)` is `h(x)`.
-    fn h_integral(&self, x: f64) -> f64 {
+    fn h_integral(x: f64, exponent: f64) -> f64 {
         let log_x = x.ln();
-        helper2((1f64 - self.exponent) * log_x) * log_x
+        helper2((1f64 - exponent) * log_x) * log_x
     }
 
     /// Computes `h(x) = 1 / x^exponent`
-    fn h(&self, x: f64) -> f64 {
-        (-self.exponent * x.ln()).exp()
+    fn h(x: f64, exponent: f64) -> f64 {
+        (-exponent * x.ln()).exp()
     }
 
     /// The inverse function of `H(x)`.
     /// Returns the `y` for which `H(y) = x`.
-    fn h_integral_inv(&self, x: f64) -> f64 {
-        let mut t: f64 = x * (1f64 - self.exponent);
+    fn h_integral_inv(x: f64, exponent: f64) -> f64 {
+        let mut t: f64 = x * (1f64 - exponent);
         if t < -1f64 {
             // Limit value to the range [-1, +inf).
             // t could be smaller than -1 in some rare cases due to numerical errors.
@@ -243,10 +247,10 @@ mod tests {
 
         // sample our distribution
         let mut rng = rand::thread_rng();
-        let mut us = ZipfDistribution::new(n, 1.07).unwrap();
+        let us = ZipfDistribution::new(n, 1.07).unwrap();
         let mut f1: Vec<_> = (0..n)
             .map(|_| {
-                use rand::distributions::Sample;
+                use rand::distributions::Distribution;
                 us.sample(&mut rng) as u64
             })
             .collect();
@@ -298,34 +302,4 @@ mod tests {
             }
         }
     }
-
-    /*
-    // XXX: uncomment and run nightly to benchmark
-    use test::Bencher;
-
-    #[bench]
-    fn bench_us(b: &mut Bencher) {
-        use rand;
-        use rand::distributions::Sample;
-        use super::ZipfDistribution;
-        let mut rng = rand::thread_rng();
-        let mut us = ZipfDistribution::new(1000000, 1.07).unwrap();
-        b.iter(|| us.sample(&mut rng));
-    }
-
-    #[bench]
-    fn bench_randomkit(b: &mut Bencher) {
-        use randomkit::Sample;
-        let mut rng = randomkit::Rng::new().unwrap();
-        let oracle = randomkit::dist::Zipf::new(1.07).unwrap();
-        b.iter(|| oracle.sample(&mut rng));
-    }
-
-    #[bench]
-    fn bench_threadrng(b: &mut Bencher) {
-        use rand::{self, Rng};
-        let mut rng = rand::thread_rng();
-        b.iter(|| rng.next_u64());
-    }
-    */
 }
