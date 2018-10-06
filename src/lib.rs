@@ -31,6 +31,7 @@ extern crate randomkit;
 
 /// Random number generator that generates Zipf-distributed random numbers using rejection
 /// inversion.
+#[derive(Clone, Copy)]
 pub struct ZipfDistribution {
     /// Number of elements
     num_elements: f64,
@@ -189,7 +190,10 @@ impl rand::distributions::Distribution<usize> for ZipfDistribution {
 use std::fmt;
 impl fmt::Debug for ZipfDistribution {
     fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
-        write!(f, "Rejection inversion Zipf deviate")
+        f.debug_struct("ZipfDistribution")
+            .field("e", &self.exponent)
+            .field("n", &self.num_elements)
+            .finish()
     }
 }
 
