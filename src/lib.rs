@@ -66,10 +66,12 @@ impl ZipfDistribution {
                 num_elements as f64 + 0.5,
                 exponent,
             ),
-            s: 2f64 - ZipfDistribution::h_integral_inv(
-                ZipfDistribution::h_integral(2.5, exponent) - ZipfDistribution::h(2f64, exponent),
-                exponent,
-            ),
+            s: 2f64
+                - ZipfDistribution::h_integral_inv(
+                    ZipfDistribution::h_integral(2.5, exponent)
+                        - ZipfDistribution::h(2f64, exponent),
+                    exponent,
+                ),
         };
 
         // populate cache
@@ -164,20 +166,6 @@ impl ZipfDistribution {
                 return k;
             }
         }
-    }
-}
-
-#[allow(deprecated)]
-impl rand::distributions::Sample<usize> for ZipfDistribution {
-    fn sample<R: Rng>(&mut self, rng: &mut R) -> usize {
-        self.next(rng)
-    }
-}
-
-#[allow(deprecated)]
-impl rand::distributions::IndependentSample<usize> for ZipfDistribution {
-    fn ind_sample<R: Rng>(&self, rng: &mut R) -> usize {
-        self.next(rng)
     }
 }
 
