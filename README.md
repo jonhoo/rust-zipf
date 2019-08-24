@@ -1,9 +1,10 @@
 # rust-zipf
 
-[![crates.io page](https://img.shields.io/crates/v/zipf.svg)](https://crates.io/crates/zipf)
-[![Downloads](https://img.shields.io/crates/d/zipf.png)](https://crates.io/crates/zipf)
+[![Crates.io](https://img.shields.io/crates/v/zipf.svg)](https://crates.io/crates/zipf)
 [![Documentation](https://docs.rs/zipf/badge.svg)](https://docs.rs/zipf/)
-[![Build Status](https://travis-ci.org/jonhoo/rust-zipf.svg?branch=master)](https://travis-ci.org/jonhoo/rust-zipf)
+[![Build Status](https://dev.azure.com/jonhoo/jonhoo/_apis/build/status/rust-zipf?branchName=master)](https://dev.azure.com/jonhoo/jonhoo/_build/latest?definitionId=9&branchName=master)
+[![Codecov](https://codecov.io/github/jonhoo/rust-zipf/coverage.svg?branch=master)](https://codecov.io/gh/jonhoo/rust-zipf)
+[![Dependency status](https://deps.rs/repo/github/jonhoo/rust-zipf/status.svg)](https://deps.rs/repo/github/jonhoo/rust-zipf)
 
 Rust implementation of a fast, discrete, bounded,
 [Zipf-distributed](https://en.wikipedia.org/wiki/Zipf's_law) random
