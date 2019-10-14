@@ -2,7 +2,7 @@
 
 [![Crates.io](https://img.shields.io/crates/v/zipf.svg)](https://crates.io/crates/zipf)
 [![Documentation](https://docs.rs/zipf/badge.svg)](https://docs.rs/zipf/)
-[![Build Status](https://dev.azure.com/jonhoo/jonhoo/_apis/build/status/rust-zipf?branchName=master)](https://dev.azure.com/jonhoo/jonhoo/_build/latest?definitionId=14&branchName=master)
+[![Build Status](https://dev.azure.com/jonhoo/jonhoo/_apis/build/status/zipf?branchName=master)](https://dev.azure.com/jonhoo/jonhoo/_build/latest?definitionId=14&branchName=master)
 [![Codecov](https://codecov.io/github/jonhoo/rust-zipf/coverage.svg?branch=master)](https://codecov.io/gh/jonhoo/rust-zipf)
 [![Dependency status](https://deps.rs/repo/github/jonhoo/rust-zipf/status.svg)](https://deps.rs/repo/github/jonhoo/rust-zipf)
 
