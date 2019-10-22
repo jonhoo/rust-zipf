@@ -11,12 +11,9 @@
 //! `H(N,s)` is the normalizing constant which corresponds to the generalized harmonic number
 //! of order `N` of `s`.
 //!
-//!
 //! # Example
 //!
 //! ```
-//! extern crate rand;
-//! use rand::thread_rng;
 //! use rand::distributions::Distribution;
 //!
 //! let mut rng = rand::thread_rng();
