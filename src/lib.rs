@@ -15,12 +15,13 @@
 //! # Example
 //!
 //! ```
+//! extern crate rand;
 //! use rand::thread_rng;
 //! use rand::distributions::Distribution;
 //!
 //! let mut rng = rand::thread_rng();
 //! let mut zipf = zipf::ZipfDistribution::new(1000, 1.03).unwrap();
-//! let sample = zipf.sample(&mut t_rng);
+//! let sample = zipf.sample(&mut rng);
 //! ```
 //!
 //! This implementation is effectively a direct port of Apache Common's
