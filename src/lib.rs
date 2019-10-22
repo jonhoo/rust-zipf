@@ -14,7 +14,6 @@
 //! # Example
 //!
 //! ```
-//! extern crate rand;
 //! use rand::distributions::Distribution;
 //!
 //! let mut rng = rand::thread_rng();
@@ -30,11 +29,8 @@
 //!
 //! [ref]: https://github.com/apache/commons-rng/blob/6a1b0c16090912e8fc5de2c1fb5bd8490ac14699/commons-rng-sampling/src/main/java/org/apache/commons/rng/sampling/distribution/RejectionInversionZipfSampler.java
 
-// XXX: uncomment and run nightly to benchmark
-// #![feature(test)]
-// extern crate test;
+#![warn(rust_2018_idioms)]
 
-extern crate rand;
 use rand::Rng;
 
 /// Random number generator that generates Zipf-distributed random numbers using rejection
@@ -185,7 +181,7 @@ impl rand::distributions::Distribution<usize> for ZipfDistribution {
 
 use std::fmt;
 impl fmt::Debug for ZipfDistribution {
-    fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
         f.debug_struct("ZipfDistribution")
             .field("e", &self.exponent)
             .field("n", &self.num_elements)
