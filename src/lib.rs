@@ -14,6 +14,7 @@
 //! # Example
 //!
 //! ```
+//! extern crate rand;
 //! use rand::distributions::Distribution;
 //!
 //! let mut rng = rand::thread_rng();
