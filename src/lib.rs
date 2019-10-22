@@ -11,6 +11,18 @@
 //! `H(N,s)` is the normalizing constant which corresponds to the generalized harmonic number
 //! of order `N` of `s`.
 //!
+//!
+//! # Example
+//!
+//! ```
+//! use rand::thread_rng;
+//! use rand::distributions::Distribution;
+//!
+//! let mut rng = rand::thread_rng();
+//! let mut zipf = zipf::ZipfDistribution::new(1000, 1.03).unwrap();
+//! let sample = zipf.sample(&mut t_rng);
+//! ```
+//!
 //! This implementation is effectively a direct port of Apache Common's
 //! [RejectionInversionZipfSampler][ref], written in Java. It is based on the method described by
 //! Wolfgang Hörmann and Gerhard Derflinger in [*Rejection-inversion to generate variates from
