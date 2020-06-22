@@ -321,4 +321,16 @@ mod test {
     fn float() {
         test(1.08);
     }
+
+    #[test]
+    fn debug() {
+        eprintln!("{:?}", ZipfDistribution::new(100, 1.0).unwrap());
+    }
+
+    #[test]
+    fn errs() {
+        ZipfDistribution::new(0, 1.0).unwrap_err();
+        ZipfDistribution::new(100, 0.0).unwrap_err();
+        ZipfDistribution::new(100, -1.0).unwrap_err();
+    }
 }
