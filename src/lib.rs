@@ -284,7 +284,7 @@ mod test {
                 // last one undershoots by the remainder
                 // so it tends to be off by a fair amount
                 // though it's relative, since the frequency is also so low
-                off_by < 0.75 * expected
+                off_by < expected
             } else {
                 // others should only marginally undershoot
                 off_by < 0.5 * expected
