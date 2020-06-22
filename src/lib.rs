@@ -301,13 +301,13 @@ mod test {
     }
 
     #[test]
-    #[cfg_attr(tarpaulin, skip)]
+    #[cfg_attr(tarpaulin, ignore)]
     fn two() {
         test(2.00);
     }
 
     #[test]
-    #[cfg_attr(tarpaulin, skip)]
+    #[cfg_attr(tarpaulin, ignore)]
     fn three() {
         test(3.00);
     }
