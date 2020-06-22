@@ -238,3 +238,80 @@ fn helper2(x: f64) -> f64 {
         1f64 + x * 0.5 * (1f64 + x * 1.0 / 3.0 * (1f64 + 0.25 * x))
     }
 }
+
+#[cfg(test)]
+mod test {
+    use super::ZipfDistribution;
+    use rand::distributions::Distribution;
+
+    #[inline]
+    fn test(alpha: f64) {
+        const N: usize = 100;
+
+        // as the alpha increases, we need more samples, since the frequency in the tail grows so low
+        let samples = (2.0f64.powf(alpha) * 5000000.0) as usize;
+
+        let mut rng = rand::thread_rng();
+        let zipf = ZipfDistribution::new(N, alpha).unwrap();
+
+        let harmonic: f64 = (1..=N).map(|n| 1.0 / (n as f64).powf(alpha)).sum();
+
+        // sample a bunch
+        let mut buckets = vec![0; N];
+        for _ in 0..samples {
+            let sample = zipf.sample(&mut rng);
+            buckets[sample - 1] += 1;
+        }
+
+        // for each bucket, see that frequency roughly matches what we expect
+        // note that the ratios here are ratios _of fractions_, so 0.5 does not mean we're off by
+        // 50%, it means we're off by 50% _of the frequency_. in other words, if the frequency was
+        // supposed to be 0.10, and it was actually 0.05, that's a 50% difference.
+        for i in 0..N {
+            let freq = buckets[i] as f64 / samples as f64;
+            let expected = (1.0 / ((i + 1) as f64).powf(alpha)) / harmonic;
+            // println!("{} {} {}", i + 1, freq, expected);
+
+            let off_by = (expected - freq).abs();
+            assert!(off_by < 0.1); // never be off by more than 10% in absolute terms
+
+            let good = if i == 0 {
+                // the first point tends to overshoot by a bit
+                // that overshoot is spread out across the remaining point
+                // which all tend to undershoot slightly
+                freq > expected && off_by < 0.3 * expected
+            } else if i == N - 1 {
+                // last one undershoots by the remainder
+                // so it tends to be off by a fair amount
+                // though it's relative, since the frequency is also so low
+                off_by < 0.75 * expected
+            } else {
+                // others should only marginally undershoot
+                off_by < 0.5 * expected
+            };
+            if !good {
+                panic!("got {}, expected {} for k = {}", freq, expected, i + 1);
+            }
+        }
+    }
+
+    #[test]
+    fn one() {
+        test(1.00);
+    }
+
+    #[test]
+    fn two() {
+        test(2.00);
+    }
+
+    #[test]
+    fn three() {
+        test(3.00);
+    }
+
+    #[test]
+    fn float() {
+        test(1.08);
+    }
+}
