@@ -240,7 +240,9 @@ fn helper2(x: f64) -> f64 {
 }
 
 #[cfg(test)]
-#[cfg_attr(tarpaulin, skip)]
+// add back when this is resolved:
+// https://github.com/xd009642/tarpaulin/issues/486#issuecomment-648782511
+// #[cfg_attr(tarpaulin, skip)]
 mod test {
     use super::ZipfDistribution;
     use rand::distributions::Distribution;
