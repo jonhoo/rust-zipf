@@ -302,16 +302,13 @@ mod test {
     }
 
     #[test]
-    // until https://github.com/xd009642/tarpaulin/issues/486 lands
-    // #[cfg_attr(tarpaulin, ignore)]
-    #[ignore]
+    #[cfg_attr(tarpaulin, ignore)]
     fn two() {
         test(2.00);
     }
 
     #[test]
-    // until https://github.com/xd009642/tarpaulin/issues/486 lands
-    // #[cfg_attr(tarpaulin, ignore)]
+    #[cfg_attr(tarpaulin, ignore)]
     #[ignore]
     fn three() {
         test(3.00);
