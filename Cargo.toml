@@ -19,4 +19,4 @@ codecov = { repository = "jonhoo/rust-zipf", branch = "master", service = "githu
 maintenance = { status = "passively-maintained" }
 
 [dependencies]
-rand = "0.7.0"
+rand = "0.8.0"
