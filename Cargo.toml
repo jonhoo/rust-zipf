@@ -1,6 +1,6 @@
 [package]
 name = "zipf"
-version = "6.1.0"
+version = "7.0.0"
 readme = "./README.md"
 description = "A fast generator of discrete, bounded Zipf-distributed random numbers"
 authors = ["Jon Gjengset <jon@thesquareplanet.com>"]
@@ -19,4 +19,7 @@ codecov = { repository = "jonhoo/rust-zipf", branch = "master", service = "githu
 maintenance = { status = "passively-maintained" }
 
 [dependencies]
-rand = "0.7.0"
+rand = { version = "0.8.0", default-features = false }
+
+[dev-dependencies]
+rand = "0.8.0"
