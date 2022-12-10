@@ -17,7 +17,7 @@
 //! use rand::distributions::Distribution;
 //!
 //! let mut rng = rand::thread_rng();
-//! let mut zipf = zipf::ZipfDistribution::new(1000, 1.03).unwrap();
+//! let mut zipf = zipf::ZipfDistribution::<usize>::new(1000, 1.03).unwrap();
 //! let sample: usize = zipf.sample(&mut rng);
 //! ```
 //!
@@ -37,7 +37,7 @@ use rand::Rng;
 /// Random number generator that generates Zipf-distributed random numbers using rejection
 /// inversion.
 #[derive(Clone, Copy)]
-pub struct ZipfDistribution {
+pub struct ZipfDistribution<T> {
     /// Number of elements
     num_elements: f64,
     /// Exponent parameter of the distribution
@@ -48,9 +48,10 @@ pub struct ZipfDistribution {
     h_integral_num_elements: f64,
     /// `2 - hIntegralInverse(hIntegral(2.5) - h(2)}`
     s: f64,
+    marker: PhantomData<T>,
 }
 
-impl ZipfDistribution {
+impl<T> ZipfDistribution<T> {
     /// Creates a new [Zipf-distributed](https://en.wikipedia.org/wiki/Zipf's_law)
     /// random number generator.
     ///
@@ -66,17 +67,14 @@ impl ZipfDistribution {
         let z = ZipfDistribution {
             num_elements: num_elements as f64,
             exponent,
-            h_integral_x1: ZipfDistribution::h_integral(1.5, exponent) - 1f64,
-            h_integral_num_elements: ZipfDistribution::h_integral(
-                num_elements as f64 + 0.5,
-                exponent,
-            ),
+            h_integral_x1: Self::h_integral(1.5, exponent) - 1f64,
+            h_integral_num_elements: Self::h_integral(num_elements as f64 + 0.5, exponent),
             s: 2f64
-                - ZipfDistribution::h_integral_inv(
-                    ZipfDistribution::h_integral(2.5, exponent)
-                        - ZipfDistribution::h(2f64, exponent),
+                - Self::h_integral_inv(
+                    Self::h_integral(2.5, exponent) - Self::h(2f64, exponent),
                     exponent,
                 ),
+            marker: PhantomData,
         };
 
         // populate cache
@@ -85,8 +83,8 @@ impl ZipfDistribution {
     }
 }
 
-impl ZipfDistribution {
-    fn next<T: FromPrimitive, R: Rng + ?Sized>(&self, rng: &mut R) -> T {
+impl<T: FromPrimitive> ZipfDistribution<T> {
+    fn next<R: Rng + ?Sized>(&self, rng: &mut R) -> T {
         // The paper describes an algorithm for exponents larger than 1 (Algorithm ZRI).
         //
         // The original method uses
@@ -112,7 +110,7 @@ impl ZipfDistribution {
             let u: f64 = hnum + rng.gen::<f64>() * (self.h_integral_x1 - hnum);
             // u is uniformly distributed in (h_integral_x1, h_integral_num_elements]
 
-            let x: f64 = ZipfDistribution::h_integral_inv(u, self.exponent);
+            let x: f64 = Self::h_integral_inv(u, self.exponent);
 
             // Limit k to the range [1, num_elements] if it would be outside
             // due to numerical inaccuracies.
@@ -127,8 +125,7 @@ impl ZipfDistribution {
             //
             // where C = 1 / (h_integral_num_elements - h_integral_x1)
             if k64 - x <= self.s
-                || u >= ZipfDistribution::h_integral(k64 + 0.5, self.exponent)
-                    - ZipfDistribution::h(k64, self.exponent)
+                || u >= Self::h_integral(k64 + 0.5, self.exponent) - Self::h(k64, self.exponent)
             {
                 // Case k = 1:
                 //
@@ -173,14 +170,14 @@ impl ZipfDistribution {
     }
 }
 
-impl<T: FromPrimitive> rand::distributions::Distribution<T> for ZipfDistribution {
+impl<T: FromPrimitive> rand::distributions::Distribution<T> for ZipfDistribution<T> {
     fn sample<R: Rng + ?Sized>(&self, rng: &mut R) -> T {
         self.next(rng)
     }
 }
 
-use std::fmt;
-impl fmt::Debug for ZipfDistribution {
+use std::{fmt, marker::PhantomData};
+impl<T> fmt::Debug for ZipfDistribution<T> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
         f.debug_struct("ZipfDistribution")
             .field("e", &self.exponent)
@@ -189,7 +186,7 @@ impl fmt::Debug for ZipfDistribution {
     }
 }
 
-impl ZipfDistribution {
+impl<T> ZipfDistribution<T> {
     /// Computes `H(x)`, defined as
     ///
     ///  - `(x^(1 - exponent) - 1) / (1 - exponent)`, if `exponent != 1`
@@ -323,13 +320,13 @@ mod test {
 
     #[test]
     fn debug() {
-        eprintln!("{:?}", ZipfDistribution::new(100, 1.0).unwrap());
+        eprintln!("{:?}", ZipfDistribution::<usize>::new(100, 1.0).unwrap());
     }
 
     #[test]
     fn errs() {
-        ZipfDistribution::new(0, 1.0).unwrap_err();
-        ZipfDistribution::new(100, 0.0).unwrap_err();
-        ZipfDistribution::new(100, -1.0).unwrap_err();
+        ZipfDistribution::<usize>::new(0, 1.0).unwrap_err();
+        ZipfDistribution::<usize>::new(100, 0.0).unwrap_err();
+        ZipfDistribution::<usize>::new(100, -1.0).unwrap_err();
     }
 }
