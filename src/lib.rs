@@ -18,7 +18,7 @@
 //!
 //! let mut rng = rand::thread_rng();
 //! let mut zipf = zipf::ZipfDistribution::new(1000, 1.03).unwrap();
-//! let sample = zipf.sample(&mut rng);
+//! let sample: usize = zipf.sample(&mut rng);
 //! ```
 //!
 //! This implementation is effectively a direct port of Apache Common's
@@ -31,6 +31,7 @@
 
 #![warn(rust_2018_idioms)]
 
+use num::FromPrimitive;
 use rand::Rng;
 
 /// Random number generator that generates Zipf-distributed random numbers using rejection
@@ -85,7 +86,7 @@ impl ZipfDistribution {
 }
 
 impl ZipfDistribution {
-    fn next<R: Rng + ?Sized>(&self, rng: &mut R) -> usize {
+    fn next<T: FromPrimitive, R: Rng + ?Sized>(&self, rng: &mut R) -> T {
         // The paper describes an algorithm for exponents larger than 1 (Algorithm ZRI).
         //
         // The original method uses
@@ -108,7 +109,6 @@ impl ZipfDistribution {
         let hnum = self.h_integral_num_elements;
 
         loop {
-            use std::cmp;
             let u: f64 = hnum + rng.gen::<f64>() * (self.h_integral_x1 - hnum);
             // u is uniformly distributed in (h_integral_x1, h_integral_num_elements]
 
@@ -118,7 +118,7 @@ impl ZipfDistribution {
             // due to numerical inaccuracies.
             let k64 = x.max(1.0).min(self.num_elements);
             // float -> integer rounds towards zero
-            let k = cmp::max(1, k64 as usize);
+            let k = T::from_f64(k64.max(1.0)).unwrap();
 
             // Here, the distribution of k is given by:
             //
@@ -173,8 +173,8 @@ impl ZipfDistribution {
     }
 }
 
-impl rand::distributions::Distribution<usize> for ZipfDistribution {
-    fn sample<R: Rng + ?Sized>(&self, rng: &mut R) -> usize {
+impl<T: FromPrimitive> rand::distributions::Distribution<T> for ZipfDistribution {
+    fn sample<R: Rng + ?Sized>(&self, rng: &mut R) -> T {
         self.next(rng)
     }
 }
@@ -262,7 +262,7 @@ mod test {
         // sample a bunch
         let mut buckets = vec![0; N];
         for _ in 0..samples {
-            let sample = zipf.sample(&mut rng);
+            let sample: usize = zipf.sample(&mut rng);
             buckets[sample - 1] += 1;
         }
 
