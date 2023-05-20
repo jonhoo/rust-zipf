@@ -15,6 +15,7 @@ documentation = "https://docs.rs/zipf"
 
 [dependencies]
 rand = { version = "0.8.0", default-features = false }
+num = "0.4"
 
 [dev-dependencies]
 rand = "0.8.0"
