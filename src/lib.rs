@@ -117,8 +117,10 @@ impl ZipfDistribution {
             // Limit k to the range [1, num_elements] if it would be outside
             // due to numerical inaccuracies.
             let k64 = x.max(1.0).min(self.num_elements);
-            // float -> integer rounds towards zero
-            let k = cmp::max(1, k64 as usize);
+            // float -> integer rounds towards zero,
+            // adding 0.5 ensures a proper round in order to prevent
+            // bias towards k == 1
+            let k = cmp::max(1, (k64 + 0.5) as usize);
 
             // Here, the distribution of k is given by:
             //
@@ -275,20 +277,7 @@ mod test {
             let off_by = (expected - freq).abs();
             assert!(off_by < 0.1); // never be off by more than 10% in absolute terms
 
-            let good = if i == 0 {
-                // the first point tends to overshoot by a bit
-                // that overshoot is spread out across the remaining point
-                // which all tend to undershoot slightly
-                freq > expected && off_by < 0.3 * expected
-            } else if i == N - 1 {
-                // last one undershoots by the remainder
-                // so it tends to be off by a fair amount
-                // though it's relative, since the frequency is also so low
-                off_by < expected
-            } else {
-                // others should only marginally undershoot
-                off_by < 0.5 * expected
-            };
+            let good = off_by < expected;
             if !good {
                 panic!("got {}, expected {} for k = {}", freq, expected, i + 1);
             }
@@ -306,7 +295,6 @@ mod test {
     }
 
     #[test]
-    #[ignore]
     fn three() {
         test(3.00);
     }
