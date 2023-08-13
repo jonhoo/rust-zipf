@@ -117,9 +117,8 @@ impl ZipfDistribution {
             // Limit k to the range [1, num_elements] if it would be outside
             // due to numerical inaccuracies.
             let k64 = x.max(1.0).min(self.num_elements);
-            // float -> integer rounds towards zero,
-            // adding 0.5 ensures a proper round in order to prevent
-            // bias towards k == 1
+            // float -> integer rounds towards zero, so we add 0.5
+            // to prevent bias towards k == 1
             let k = cmp::max(1, (k64 + 0.5) as usize);
 
             // Here, the distribution of k is given by:
