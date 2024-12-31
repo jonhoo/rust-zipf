@@ -2,7 +2,7 @@
 
 [![Crates.io](https://img.shields.io/crates/v/zipf.svg)](https://crates.io/crates/zipf)
 [![Documentation](https://docs.rs/zipf/badge.svg)](https://docs.rs/zipf/)
-[![Codecov](https://codecov.io/github/jonhoo/rust-zipf/coverage.svg?branch=main)](https://codecov.io/gh/jonhoo/rust-zipf)
+[![codecov](https://codecov.io/gh/jonhoo/rust-zipf/graph/badge.svg?token=IuYZGwTWik)](https://codecov.io/gh/jonhoo/rust-zipf)
 [![Dependency status](https://deps.rs/repo/github/jonhoo/rust-zipf/status.svg)](https://deps.rs/repo/github/jonhoo/rust-zipf)
 
 Rust implementation of a fast, discrete, bounded,
