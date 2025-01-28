@@ -14,7 +14,7 @@ repository = "https://github.com/jonhoo/rust-zipf"
 documentation = "https://docs.rs/zipf"
 
 [dependencies]
-rand = { version = "0.8.0", default-features = false }
+rand = { version = "0.9.0", default-features = false }
 
 [dev-dependencies]
-rand = "0.8.0"
+rand = "0.9.0"
