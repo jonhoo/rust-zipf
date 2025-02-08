@@ -1,3 +1,9 @@
+> [!CAUTION]
+> This crate is deprecated. Prefer
+> [`rand_distr::Zipf`](https://docs.rs/rand_distr/latest/rand_distr/struct.Zipf.html).
+
+---
+
 # rust-zipf
 
 [![Crates.io](https://img.shields.io/crates/v/zipf.svg)](https://crates.io/crates/zipf)

@@ -36,6 +36,7 @@ use rand::Rng;
 /// Random number generator that generates Zipf-distributed random numbers using rejection
 /// inversion.
 #[derive(Clone, Copy)]
+#[deprecated = "prefer rand_distr::Zipf"]
 pub struct ZipfDistribution {
     /// Number of elements
     num_elements: f64,

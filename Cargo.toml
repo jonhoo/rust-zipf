@@ -1,6 +1,6 @@
 [package]
 name = "zipf"
-version = "7.0.1"
+version = "7.0.2"
 readme = "./README.md"
 description = "A fast generator of discrete, bounded Zipf-distributed random numbers"
 authors = ["Jon Gjengset <jon@thesquareplanet.com>"]
